@@ -1,4 +1,4 @@
-// Captions (always shown; announced by screen readers) and an optional synthesized voice.
+// Captions (shown when the player turns them on; always announced by screen readers) and an optional synthesized voice.
 const Speech = (() => {
   const canSpeak = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
   let lastMessage = '';

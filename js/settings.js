@@ -1,7 +1,7 @@
 // Persistent player settings: accessibility options and voice speed.
 const Settings = (() => {
   const KEY = 'orcquest.settings.v1';
-  const defaults = { highContrast: false, voice: false, voiceRate: 1.0, sound: true };
+  const defaults = { voice: false, voiceRate: 1.0, sound: true, captions: false };
   let data = { ...defaults };
 
   try {

@@ -1,4 +1,4 @@
-// Colour palettes. Every tile also has a pattern, so meaning never depends on colour alone.
+// Colour palette. Every tile also has a pattern, so meaning never depends on colour alone.
 const PALETTES = {
   normal: {
     bg: '#101018',
@@ -25,35 +25,9 @@ const PALETTES = {
       mountain: { fill: '#6b6b6b', ink: '#9a9a9a', pattern: 'peaks',     walkable: false, name: 'mountain' },
       wall:     { fill: '#7a5a4a', ink: '#4a342a', pattern: 'bricks',    walkable: false, name: 'wall' }
     }
-  },
-  highContrast: {
-    bg: '#000000',
-    hero: { body: '#ff00ff', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
-    npcs: {
-      elder: { body: '#00ffff', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
-      smith: { body: '#ff8800', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
-      child: { body: '#00ff00', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
-      brenna: { body: '#ff3333', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
-      grukk: { body: '#ff0000', head: '#00ff00', hair: '#ffffff', outline: '#000000', edge: '#ffffff' }
-    },
-    enemies: {
-      scout:  { body: '#ff8800', head: '#00ff00', hair: '#000000', outline: '#000000', edge: '#ffffff' },
-      raider: { body: '#ff3333', head: '#00ff00', hair: '#000000', outline: '#000000', edge: '#ffffff' },
-      shaman: { body: '#00ffff', head: '#00ff00', hair: '#ffffff', outline: '#000000', edge: '#ffffff' },
-      grukk:  { body: '#ff0000', head: '#00ff00', hair: '#ffffff', outline: '#000000', edge: '#ffffff' }
-    },
-    ui: { box: '#000000', border: '#ffffff', text: '#ffffff', accent: '#ffff00', bar: '#ffff00', barBack: '#000000', hurt: '#ff4444' },
-    tiles: {
-      grass:    { fill: '#000000', ink: '#00ff00', pattern: 'dots',      walkable: true,  name: 'grass' },
-      path:     { fill: '#000000', ink: '#ffffff', pattern: 'stripes',   walkable: true,  name: 'path' },
-      forest:   { fill: '#00ff00', ink: '#000000', pattern: 'triangles', walkable: true,  name: 'forest' },
-      water:    { fill: '#00ffff', ink: '#000000', pattern: 'waves',     walkable: false, name: 'water' },
-      mountain: { fill: '#ff8800', ink: '#000000', pattern: 'peaks',     walkable: false, name: 'mountain' },
-      wall:     { fill: '#ffffff', ink: '#000000', pattern: 'bricks',    walkable: false, name: 'wall' }
-    }
   }
 };
 
 function currentPalette() {
-  return PALETTES[Settings.get('highContrast') ? 'highContrast' : 'normal'];
+  return PALETTES.normal;
 }

@@ -4,7 +4,8 @@
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
 
-  const btnContrast = document.getElementById('btn-contrast');
+  const btnCaptions = document.getElementById('btn-captions');
+  const caption = document.getElementById('caption');
   const btnVoice = document.getElementById('btn-voice');
   const btnRate = document.getElementById('btn-rate');
   const btnSound = document.getElementById('btn-sound');
@@ -162,9 +163,9 @@
     Speech.say(`On ${here}. ${around.join('. ')}.`);
   }
 
-  function toggleContrast() {
-    const on = Settings.toggle('highContrast');
-    Speech.say(`High contrast ${on ? 'on' : 'off'}.`);
+  function toggleCaptions() {
+    const on = Settings.toggle('captions');
+    Speech.say(`Captions ${on ? 'on' : 'off'}.`);
   }
 
   function toggleVoice() {
@@ -180,13 +181,14 @@
   }
 
   function refreshUI() {
-    const hc = Settings.get('highContrast');
+    const cap = Settings.get('captions');
     const vo = Settings.get('voice');
     const rate = Settings.get('voiceRate');
 
-    document.body.classList.toggle('high-contrast', hc);
-    btnContrast.textContent = `High contrast: ${hc ? 'on' : 'off'} (H)`;
-    btnContrast.setAttribute('aria-pressed', String(hc));
+    // Captions are hidden visually when off, but screen readers still announce them.
+    caption.classList.toggle('sr-only', !cap);
+    btnCaptions.textContent = `Captions: ${cap ? 'on' : 'off'} (C)`;
+    btnCaptions.setAttribute('aria-pressed', String(cap));
 
     if (Speech.canSpeak) {
       btnVoice.textContent = `Voice: ${vo ? 'on' : 'off'} (V)`;
@@ -357,7 +359,7 @@
   }
 
   // Input bindings
-  Input.on('h', toggleContrast);
+  Input.on('c', toggleCaptions);
   Input.on('v', toggleVoice);
   Input.on('r', () => Speech.repeat());
   Input.on('e', describe);
@@ -378,7 +380,7 @@
   Input.on('n', toggleSound);
 
   // Button bindings
-  btnContrast.addEventListener('click', toggleContrast);
+  btnCaptions.addEventListener('click', toggleCaptions);
   btnVoice.addEventListener('click', toggleVoice);
   btnSound.addEventListener('click', toggleSound);
   btnRate.addEventListener('click', () => {

@@ -7,30 +7,50 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main>
-    <h1>Orc Quest</h1>
+  <div class="layout">
+    <section class="game-panel" aria-label="Game">
+      <div class="frame">
+        <canvas id="game" width="256" height="224" role="img" aria-label="Game screen"></canvas>
+      </div>
+    </section>
 
-    <div class="frame">
-      <canvas id="game" width="256" height="224" role="img" aria-label="Game screen"></canvas>
-    </div>
+    <aside class="side-panel" aria-label="Controls and help">
+      <h1>Orc Quest</h1>
 
-    <!-- Captions: always shown, and announced by screen readers (aria-live). -->
-    <div id="caption" class="caption" aria-live="polite"></div>
+      <!-- Captions: hidden on screen unless the player turns them on, but always read by screen readers (aria-live). -->
+      <div id="caption" class="caption sr-only" aria-live="polite"></div>
 
-    <div class="options" role="group" aria-label="Accessibility options">
-      <button id="btn-contrast" type="button" aria-pressed="false">High contrast: off (H)</button>
-      <button id="btn-voice" type="button" aria-pressed="false">Voice: off (V)</button>
-      <button id="btn-rate" type="button">Voice speed: 1.0 ([ ])</button>
-      <button id="btn-sound" type="button" aria-pressed="true">Sound: on (N)</button>
-    </div>
+      <div class="options" role="group" aria-label="Accessibility options">
+        <button id="btn-captions" type="button" aria-pressed="false">Captions: off (C)</button>
+        <button id="btn-voice" type="button" aria-pressed="false">Voice: off (V)</button>
+        <button id="btn-rate" type="button">Voice speed: 1.0 ([ ])</button>
+        <button id="btn-sound" type="button" aria-pressed="true">Sound: on (N)</button>
+      </div>
 
-    <p class="help">
-      Move: arrow keys or WASD. Z, Space or Enter: talk, continue, and confirm. E: describe surroundings.
-      Battles: up and down to choose (or 1 to 5), Z to confirm. Random battles happen in the forest.
-      M: menu (status, items, equipment, save, load). Brenna in the village sells gear and potions.
-      R: repeat last message. H: high contrast. V: voice. [ and ]: voice speed. N: music and sound effects on or off.
-    </p>
-  </main>
+      <div class="help">
+        <h2>Moving and talking</h2>
+        <ul>
+          <li>Move: arrow keys or WASD</li>
+          <li>Talk, continue, confirm: Z, Space or Enter</li>
+          <li>Describe surroundings: E</li>
+          <li>Repeat last message: R</li>
+        </ul>
+        <h2>Battles and menus</h2>
+        <ul>
+          <li>Choose: up and down, or 1 to 6, then Z</li>
+          <li>Menu (status, items, equipment, save, load): M</li>
+          <li>Random battles happen in the forest</li>
+          <li>Brenna in the village sells gear and potions</li>
+        </ul>
+        <h2>Options</h2>
+        <ul>
+          <li>Captions on or off: C</li>
+          <li>Voice on or off: V, speed: [ and ]</li>
+          <li>Music and sound effects: N</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
 
   <script src="js/settings.js"></script>
   <script src="js/audio.js"></script>
