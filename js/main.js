@@ -1,4 +1,4 @@
-// Game loop, movement, talking to NPCs, and wiring of the accessibility controls.
+// Game loop, movement, talking to NPCs, battles, and wiring of the accessibility controls.
 (function () {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
@@ -84,12 +84,37 @@
     Dialogue.start(npc.script(State));
   }
 
+  // Random encounters: a chance each time the player steps onto a tile that has them.
+  function maybeEncounter() {
+    const enc = ENCOUNTERS[WorldMap.tileKeyAt(player.x, player.y)];
+    if (!enc || Math.random() >= enc.rate) return;
+    const group = enc.groups[Math.floor(Math.random() * enc.groups.length)];
+    Battle.start(group, onBattleEnd);
+  }
+
+  function onBattleEnd(result) {
+    if (result === 'lost') {
+      // Defeat: the villagers take the party home to heal.
+      State.restoreParty();
+      player.x = player.fromX = WorldMap.info().start.x;
+      player.y = player.fromY = WorldMap.info().start.y;
+      lastTileName = tileName(player.x, player.y);
+      setCanvasLabel();
+      Speech.say('You awaken in Mistvale. The villagers tended your wounds, and the party is restored.');
+    } else if (result === 'fled') {
+      Speech.say('You escaped into the hills.');
+    } else {
+      Speech.say('The hills are quiet again.');
+    }
+  }
+
   function onArrive() {
     setCanvasLabel();
     const name = tileName(player.x, player.y);
     // Speak only when the terrain changes, so walking across grass stays quiet.
     if (name !== lastTileName) Speech.say(name.charAt(0).toUpperCase() + name.slice(1) + '.');
     lastTileName = name;
+    maybeEncounter();
   }
 
   function describe() {
@@ -137,7 +162,8 @@
 
   function update(dt) {
     Dialogue.update(dt);
-    if (Dialogue.active()) return; // the world waits while someone is talking
+    Battle.update(dt);
+    if (Battle.active() || Dialogue.active()) return; // the world waits during talks and battles
 
     if (player.moving) {
       player.moveT += dt;
@@ -157,11 +183,7 @@
     if (dir) tryMove(dir);
   }
 
-  function draw() {
-    const pal = palette();
-    ctx.fillStyle = pal.bg;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+  function drawField(pal) {
     const { width, height, id } = WorldMap.info();
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -182,6 +204,15 @@
     Dialogue.draw(ctx, pal);
   }
 
+  function draw() {
+    const pal = palette();
+    ctx.fillStyle = pal.bg;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (Battle.active()) Battle.draw(ctx, pal);
+    else drawField(pal);
+  }
+
   let last = performance.now();
   function frame(now) {
     const dt = Math.min(50, now - last);
@@ -191,7 +222,7 @@
     requestAnimationFrame(frame);
   }
 
-  // Confirm: continue a conversation, or talk to the NPC in front of the player.
+  // Confirm: continue a conversation or battle message, or talk to the NPC in front of the player.
   function confirm() {
     if (Dialogue.active()) {
       Dialogue.press();
@@ -215,6 +246,8 @@
   Input.on('1', () => Dialogue.pick(0));
   Input.on('2', () => Dialogue.pick(1));
   Input.on('3', () => Dialogue.pick(2));
+  Input.on('4', () => Dialogue.pick(3));
+  Input.on('5', () => Dialogue.pick(4));
 
   // Button bindings
   btnContrast.addEventListener('click', toggleContrast);
@@ -227,6 +260,8 @@
   document.addEventListener('settingschange', refreshUI);
 
   // Start
+  State.joinParty('kael');
+  State.addItem('potion', 2);
   WorldMap.load('mistvale');
   player.x = player.fromX = WorldMap.info().start.x;
   player.y = player.fromY = WorldMap.info().start.y;

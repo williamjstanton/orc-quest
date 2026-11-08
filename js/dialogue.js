@@ -44,7 +44,7 @@ const Dialogue = (() => {
       run.text = cmd.text;
       run.shown = 0;
       run.choices = null;
-      Speech.say(`${cmd.speaker}: ${cmd.text}`);
+      Speech.say(cmd.speaker ? `${cmd.speaker}: ${cmd.text}` : cmd.text);
     } else if (cmd.type === 'choice') {
       run.choices = cmd.options;
       run.index = 0;
@@ -64,12 +64,13 @@ const Dialogue = (() => {
   // Confirm key: finish typing, pick the highlighted choice, or go to the next line.
   function press() {
     if (!run) return false;
-    if (run.choices) {
-      step(run.index);
-      return true;
-    }
+    // Finish typing first, so a choice is never picked by accident.
     if (run.shown < run.text.length) {
       run.shown = run.text.length;
+      return true;
+    }
+    if (run.choices) {
+      step(run.index);
       return true;
     }
     step(undefined);
@@ -91,7 +92,7 @@ const Dialogue = (() => {
   }
 
   function update(dt) {
-    if (run && !run.choices && run.text) {
+    if (run && run.text) {
       run.shown = Math.min(run.text.length, run.shown + (dt * CHARS_PER_SECOND) / 1000);
     }
   }
@@ -172,5 +173,5 @@ const Dialogue = (() => {
     ctx.restore();
   }
 
-  return { say, choose, start, active, press, move, pick, update, draw };
+  return { say, choose, start, active, current: () => run, press, move, pick, update, draw };
 })();

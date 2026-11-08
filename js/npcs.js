@@ -22,6 +22,8 @@ function* elderScript(s) {
     s.flags.met_elder = true;
     yield Dialogue.say('Elder Aldric', 'Welcome to Mistvale. Orc raiders have been seen in the hills, and our watch is thin.');
     yield Dialogue.say('Elder Aldric', 'Speak with Tomas the smith, by the pond. He keeps an old horn for warnings.');
+    s.joinParty('sela');
+    yield Dialogue.say('Elder Aldric', 'Sela, our healer, will go with you. She knows the hills.');
   } else {
     yield Dialogue.say('Elder Aldric', 'Tomas, by the pond, can help. Go well.');
   }
@@ -50,7 +52,8 @@ function* smithScript(s) {
     }
     yield Dialogue.say('Tomas', 'Here, take the Warning Horn. Sound it if they come near Mistvale.');
     s.addItem('warning_horn');
-    yield Dialogue.say('Note', 'You received the Warning Horn.');
+    s.joinParty('tomas');
+    yield Dialogue.say('Note', 'You received the Warning Horn. Tomas joins your party.');
   } else {
     yield Dialogue.say('Tomas', 'Good luck in the hills, friend.');
   }
