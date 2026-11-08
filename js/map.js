@@ -34,7 +34,7 @@ const WorldMap = (() => {
     load(id) {
       const map = MAPS[id];
       grid = map.rows.map(row => row.padEnd(WIDTH, '^').slice(0, WIDTH).split(''));
-      info = { name: map.name, start: { ...map.start }, width: WIDTH, height: grid.length };
+      info = { id, name: map.name, start: { ...map.start }, width: WIDTH, height: grid.length };
     },
 
     info() {

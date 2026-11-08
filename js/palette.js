@@ -3,6 +3,12 @@ const PALETTES = {
   normal: {
     bg: '#101018',
     hero: { body: '#3a7bd5', head: '#f2c9a0', hair: '#7a4a2a', outline: '#1b1b1b', edge: '#ffffff' },
+    npcs: {
+      elder: { body: '#7b4fb0', head: '#f2c9a0', hair: '#d8d8d8', outline: '#1b1b1b', edge: '#ffffff' },
+      smith: { body: '#8a8a8a', head: '#e8b890', hair: '#3a2a1a', outline: '#1b1b1b', edge: '#ffffff' },
+      child: { body: '#e0b020', head: '#f2c9a0', hair: '#e8c060', outline: '#1b1b1b', edge: '#ffffff' }
+    },
+    ui: { box: '#0b0d1a', border: '#f4f4f4', text: '#f4f4f4', accent: '#ffd166' },
     tiles: {
       grass:    { fill: '#4a7a3a', ink: '#6fa35a', pattern: 'dots',      walkable: true,  name: 'grass' },
       path:     { fill: '#b89a6a', ink: '#d8c49a', pattern: 'plain',     walkable: true,  name: 'path' },
@@ -15,6 +21,12 @@ const PALETTES = {
   highContrast: {
     bg: '#000000',
     hero: { body: '#ff00ff', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
+    npcs: {
+      elder: { body: '#00ffff', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
+      smith: { body: '#ff8800', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
+      child: { body: '#00ff00', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' }
+    },
+    ui: { box: '#000000', border: '#ffffff', text: '#ffffff', accent: '#ffff00' },
     tiles: {
       grass:    { fill: '#000000', ink: '#00ff00', pattern: 'dots',      walkable: true,  name: 'grass' },
       path:     { fill: '#000000', ink: '#ffffff', pattern: 'stripes',   walkable: true,  name: 'path' },

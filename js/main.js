@@ -1,4 +1,4 @@
-// Game loop, movement, and wiring of the accessibility controls.
+// Game loop, movement, talking to NPCs, and wiring of the accessibility controls.
 (function () {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
@@ -16,6 +16,7 @@
     x: 0, y: 0,            // current tile
     fromX: 0, fromY: 0,    // tile the current step started from
     moveT: 0, moving: false,
+    facing: 'down',
     lastDir: null, lastBlock: null
   };
   let lastTileName = '';
@@ -27,6 +28,10 @@
   function tileName(x, y) {
     const key = WorldMap.tileKeyAt(x, y);
     return key ? palette().tiles[key].name : 'map edge';
+  }
+
+  function npcAt(x, y) {
+    return npcsOn(WorldMap.info().id).find(n => n.x === x && n.y === y) || null;
   }
 
   function setCanvasLabel() {
@@ -42,13 +47,19 @@
     const nx = player.x + dx;
     const ny = player.y + dy;
     const key = WorldMap.tileKeyAt(nx, ny);
+    player.facing = dir;
 
-    if (!key || !palette().tiles[key].walkable) {
+    const npc = npcAt(nx, ny);
+    if (npc || !key || !palette().tiles[key].walkable) {
       // Announce a blocked path once per press, not on every frame.
       const blockId = `${nx},${ny}`;
       if (player.lastBlock !== blockId) {
         player.lastBlock = blockId;
-        Speech.say(key ? `Blocked by ${tileName(nx, ny)} to the ${DIR_NAME[dir]}.` : 'You cannot leave the map this way.');
+        if (npc) {
+          Speech.say(`${npc.name} is in the way. Press Z to talk.`);
+        } else {
+          Speech.say(key ? `Blocked by ${tileName(nx, ny)} to the ${DIR_NAME[dir]}.` : 'You cannot leave the map this way.');
+        }
       }
       return;
     }
@@ -60,6 +71,17 @@
     player.moving = true;
     player.moveT = 0;
     player.lastBlock = null;
+  }
+
+  // Talk to the NPC on the tile the player is facing.
+  function interact() {
+    const [dx, dy] = DIR_VEC[player.facing];
+    const npc = npcAt(player.x + dx, player.y + dy);
+    if (!npc) {
+      Speech.say('Nothing to talk to here.');
+      return;
+    }
+    Dialogue.start(npc.script(State));
   }
 
   function onArrive() {
@@ -114,6 +136,9 @@
   }
 
   function update(dt) {
+    Dialogue.update(dt);
+    if (Dialogue.active()) return; // the world waits while someone is talking
+
     if (player.moving) {
       player.moveT += dt;
       if (player.moveT >= MOVE_MS) {
@@ -137,11 +162,15 @@
     ctx.fillStyle = pal.bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const { width, height } = WorldMap.info();
+    const { width, height, id } = WorldMap.info();
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         Render.drawTile(ctx, x * TILE, y * TILE, pal.tiles[WorldMap.tileKeyAt(x, y)]);
       }
+    }
+
+    for (const npc of npcsOn(id)) {
+      Render.drawHero(ctx, npc.x * TILE, npc.y * TILE, pal.npcs[npc.look]);
     }
 
     // Interpolate the hero between tiles while walking.
@@ -149,6 +178,8 @@
     const px = (player.fromX + (player.x - player.fromX) * t) * TILE;
     const py = (player.fromY + (player.y - player.fromY) * t) * TILE;
     Render.drawHero(ctx, px, py, pal.hero);
+
+    Dialogue.draw(ctx, pal);
   }
 
   let last = performance.now();
@@ -160,6 +191,15 @@
     requestAnimationFrame(frame);
   }
 
+  // Confirm: continue a conversation, or talk to the NPC in front of the player.
+  function confirm() {
+    if (Dialogue.active()) {
+      Dialogue.press();
+    } else if (!player.moving) {
+      interact();
+    }
+  }
+
   // Input bindings
   Input.on('h', toggleContrast);
   Input.on('v', toggleVoice);
@@ -167,6 +207,14 @@
   Input.on('e', describe);
   Input.on('[', () => changeRate(-0.1));
   Input.on(']', () => changeRate(0.1));
+  Input.on('z', confirm);
+  Input.on('enter', confirm);
+  Input.on(' ', confirm);
+  Input.on('dir:up', () => Dialogue.move(-1));
+  Input.on('dir:down', () => Dialogue.move(1));
+  Input.on('1', () => Dialogue.pick(0));
+  Input.on('2', () => Dialogue.pick(1));
+  Input.on('3', () => Dialogue.pick(2));
 
   // Button bindings
   btnContrast.addEventListener('click', toggleContrast);
@@ -185,6 +233,6 @@
   lastTileName = tileName(player.x, player.y);
   setCanvasLabel();
   refreshUI();
-  Speech.say(`Welcome to ${WorldMap.info().name}. Use the arrow keys or WASD to move. Press E to describe your surroundings.`);
+  Speech.say(`Welcome to ${WorldMap.info().name}. Walk up to someone and press Z to talk. Press E to describe your surroundings.`);
   requestAnimationFrame((now) => { last = now; frame(now); });
 })();

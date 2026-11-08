@@ -13,7 +13,10 @@ const Input = (() => {
     const dir = KEY_DIRS[e.key];
     if (dir) {
       e.preventDefault();
-      if (!e.repeat && !held.includes(dir)) held.push(dir);
+      if (!e.repeat) {
+        if (!held.includes(dir)) held.push(dir);
+        if (actions['dir:' + dir]) actions['dir:' + dir]();
+      }
       return;
     }
     if (e.repeat) return;
