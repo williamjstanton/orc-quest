@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orc Quest</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <h1>Orc Quest</h1>
+
+    <div class="frame">
+      <canvas id="game" width="256" height="224" role="img" aria-label="Game screen"></canvas>
+    </div>
+
+    <!-- Captions: always shown, and announced by screen readers (aria-live). -->
+    <div id="caption" class="caption" aria-live="polite"></div>
+
+    <div class="options" role="group" aria-label="Accessibility options">
+      <button id="btn-contrast" type="button" aria-pressed="false">High contrast: off (H)</button>
+      <button id="btn-voice" type="button" aria-pressed="false">Voice: off (V)</button>
+      <button id="btn-rate" type="button">Voice speed: 1.0 ([ ])</button>
+    </div>
+
+    <p class="help">
+      Move: arrow keys or WASD. E: describe surroundings. R: repeat last message.
+      H: high contrast. V: voice. [ and ]: voice speed.
+    </p>
+  </main>
+
+  <script src="js/settings.js"></script>
+  <script src="js/palette.js"></script>
+  <script src="js/speech.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
