@@ -51,8 +51,42 @@ const Sound = (() => {
     encounter: [{ f: 330, f1: 110, d: 0.35, w: 'square', v: 0.08 }],
     levelup: [523, 659, 784, 1046].map((f, i) => ({ f, at: i * 0.09, d: 0.12, w: 'square', v: 0.07 })),
     victory: [523, 659, 784, 659, 784, 1046].map((f, i) => ({ f, at: i * 0.12, d: 0.2, w: 'square', v: 0.06 })),
-    error: [{ f: 160, d: 0.15, w: 'square', v: 0.06 }]
+    error: [{ f: 160, d: 0.15, w: 'square', v: 0.06 }],
+    // Footsteps: one short sound per step, quiet enough to ignore after a while.
+    step_path: [{ f: 220, f1: 150, d: 0.05, w: 'triangle', v: 0.05 }, { noise: true, ft: 'highpass', f: 2500, q: 0.7, d: 0.03, v: 0.02 }],
+    step_grass: [{ noise: true, ft: 'bandpass', f: 2200, q: 0.9, d: 0.14, v: 0.03 }],        // a soft swish
+    step_forest: [                                                                             // a crunch: two quick crackles
+      { noise: true, ft: 'lowpass', f: 700, q: 0.7, d: 0.07, v: 0.05 },
+      { noise: true, ft: 'bandpass', f: 1400, q: 3, at: 0.04, d: 0.03, v: 0.04 }
+    ]
   };
+
+  // A short burst of filtered noise, used for swishes and crunches.
+  let noiseData = null;
+  function noiseBurst(part, t, dest) {
+    if (!noiseData) {
+      noiseData = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+      const samples = noiseData.getChannelData(0);
+      for (let i = 0; i < samples.length; i++) samples[i] = Math.random() * 2 - 1;
+    }
+    const start = t + (part.at || 0);
+    const end = start + part.d;
+    const src = ctx.createBufferSource();
+    src.buffer = noiseData;
+    const filter = ctx.createBiquadFilter();
+    filter.type = part.ft;
+    filter.frequency.value = part.f || 1000;
+    filter.Q.value = part.q || 1;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.exponentialRampToValueAtTime(part.v, start + Math.min(0.02, part.d / 3));
+    g.gain.exponentialRampToValueAtTime(0.0001, end);
+    src.connect(filter);
+    filter.connect(g);
+    g.connect(dest);
+    src.start(start, Math.random() * 0.5);
+    src.stop(end + 0.02);
+  }
 
   function init() {
     if (ctx) return true;
@@ -165,7 +199,10 @@ const Sound = (() => {
     sfx(name) {
       if (!Settings.get('sound') || !running() || !SFX[name]) return;
       const t = ctx.currentTime;
-      for (const part of SFX[name]) tone(part, t, sfxGain);
+      for (const part of SFX[name]) {
+        if (part.noise) noiseBurst(part, t + 0, sfxGain);
+        else tone(part, t, sfxGain);
+      }
     }
   };
 })();

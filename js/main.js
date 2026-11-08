@@ -149,6 +149,8 @@
 
   function onArrive() {
     setCanvasLabel();
+    // A footstep sound for the ground underfoot (path, grass or forest).
+    Sound.sfx('step_' + WorldMap.tileKeyAt(player.x, player.y));
     const name = tileName(player.x, player.y);
     // Speak only when the terrain changes, so walking across grass stays quiet.
     if (name !== lastTileName) Speech.say(name.charAt(0).toUpperCase() + name.slice(1) + '.');
