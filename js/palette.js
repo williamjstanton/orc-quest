@@ -6,7 +6,8 @@ const PALETTES = {
     npcs: {
       elder: { body: '#7b4fb0', head: '#f2c9a0', hair: '#d8d8d8', outline: '#1b1b1b', edge: '#ffffff' },
       smith: { body: '#8a8a8a', head: '#e8b890', hair: '#3a2a1a', outline: '#1b1b1b', edge: '#ffffff' },
-      child: { body: '#e0b020', head: '#f2c9a0', hair: '#e8c060', outline: '#1b1b1b', edge: '#ffffff' }
+      child: { body: '#e0b020', head: '#f2c9a0', hair: '#e8c060', outline: '#1b1b1b', edge: '#ffffff' },
+      brenna: { body: '#c04a8a', head: '#f2c9a0', hair: '#6a3a1a', outline: '#1b1b1b', edge: '#ffffff' }
     },
     enemies: {
       scout:  { body: '#6b4a2a', head: '#6a9a3a', hair: '#2a2a2a', outline: '#1b1b1b', edge: '#ffffff' },
@@ -29,7 +30,8 @@ const PALETTES = {
     npcs: {
       elder: { body: '#00ffff', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
       smith: { body: '#ff8800', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
-      child: { body: '#00ff00', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' }
+      child: { body: '#00ff00', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
+      brenna: { body: '#ff3333', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' }
     },
     enemies: {
       scout:  { body: '#ff8800', head: '#00ff00', hair: '#000000', outline: '#000000', edge: '#ffffff' },

@@ -76,7 +76,8 @@ const NPC_DATA = {
   mistvale: [
     { id: 'elder', name: 'Elder Aldric', x: 2, y: 2, look: 'elder', script: elderScript },
     { id: 'smith', name: 'Tomas', x: 13, y: 7, look: 'smith', script: smithScript },
-    { id: 'child', name: 'Wren', x: 7, y: 10, look: 'child', script: childScript }
+    { id: 'child', name: 'Wren', x: 7, y: 10, look: 'child', script: childScript },
+    { id: 'brenna', name: 'Brenna', x: 10, y: 3, look: 'brenna', script: shopScript }
   ]
 };
 

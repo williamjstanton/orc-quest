@@ -222,6 +222,12 @@
     requestAnimationFrame(frame);
   }
 
+  // Open the field menu, unless something else is already going on.
+  function openMenu() {
+    if (Dialogue.active() || Battle.active() || player.moving) return;
+    Dialogue.start(fieldMenu());
+  }
+
   // Confirm: continue a conversation or battle message, or talk to the NPC in front of the player.
   function confirm() {
     if (Dialogue.active()) {
@@ -238,6 +244,7 @@
   Input.on('e', describe);
   Input.on('[', () => changeRate(-0.1));
   Input.on(']', () => changeRate(0.1));
+  Input.on('m', openMenu);
   Input.on('z', confirm);
   Input.on('enter', confirm);
   Input.on(' ', confirm);
