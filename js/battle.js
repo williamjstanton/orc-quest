@@ -195,6 +195,7 @@ const Battle = (() => {
         m.atk += GROWTH.atk; m.def += GROWTH.def;
         m.mag += GROWTH.mag; m.spd += GROWTH.spd;
         yield msg(`${m.name} reached level ${m.level}!`);
+        yield msg(`HP +${GROWTH.maxHp}, MP +${GROWTH.maxMp}, Attack +${GROWTH.atk}, Defense +${GROWTH.def}, Magic +${GROWTH.mag}, Speed +${GROWTH.spd}.`);
       }
     }
   }

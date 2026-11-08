@@ -1,4 +1,4 @@
-// Game loop, movement, talking to NPCs, battles, and wiring of the accessibility controls.
+// Game loop, movement, talking to NPCs, battles, the title screen, saving, and the accessibility controls.
 (function () {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
@@ -20,6 +20,7 @@
     lastDir: null, lastBlock: null
   };
   let lastTileName = '';
+  let mode = 'title';      // 'title' or 'field'
 
   function palette() {
     return currentPalette();
@@ -40,6 +41,18 @@
       'aria-label',
       `${WorldMap.info().name}. Standing on ${here}, column ${player.x + 1}, row ${player.y + 1}.`
     );
+  }
+
+  // Put the player on a tile without walking there.
+  function placePlayer(x, y) {
+    player.x = player.fromX = x;
+    player.y = player.fromY = y;
+    player.moving = false;
+    player.moveT = 0;
+    player.lastDir = null;
+    player.lastBlock = null;
+    lastTileName = tileName(x, y);
+    setCanvasLabel();
   }
 
   function tryMove(dir) {
@@ -96,10 +109,7 @@
     if (result === 'lost') {
       // Defeat: the villagers take the party home to heal.
       State.restoreParty();
-      player.x = player.fromX = WorldMap.info().start.x;
-      player.y = player.fromY = WorldMap.info().start.y;
-      lastTileName = tileName(player.x, player.y);
-      setCanvasLabel();
+      placePlayer(WorldMap.info().start.x, WorldMap.info().start.y);
       Speech.say('You awaken in Mistvale. The villagers tended your wounds, and the party is restored.');
     } else if (result === 'fled') {
       Speech.say('You escaped into the hills.');
@@ -160,9 +170,50 @@
     btnRate.textContent = `Voice speed: ${rate.toFixed(1)} ([ ])`;
   }
 
+  // ---- Save hooks: how save.js describes the game and restores it ----
+
+  function capture() {
+    const leader = State.party()[0];
+    return {
+      mapId: WorldMap.info().id,
+      x: player.x,
+      y: player.y,
+      summary: `${WorldMap.info().name}, ${leader.name} Lv ${leader.level}, ${State.gold()}g`,
+      state: State.serialize()
+    };
+  }
+
+  function applySave(data) {
+    if (!Number.isInteger(data.x) || !Number.isInteger(data.y)) throw new Error('Save has no position.');
+    State.deserialize(data.state); // throws before changing anything if the save is bad
+    WorldMap.load(data.mapId);
+    placePlayer(data.x, data.y);
+    mode = 'field';
+  }
+
+  function newGame() {
+    State.joinParty('kael');
+    State.addItem('potion', 2);
+    WorldMap.load('mistvale');
+    placePlayer(WorldMap.info().start.x, WorldMap.info().start.y);
+    mode = 'field';
+    Speech.say(`Welcome to ${WorldMap.info().name}. Walk up to someone and press Z to talk. Press E to describe your surroundings.`);
+  }
+
+  Save.hooks.capture = capture;
+  Save.hooks.apply = applySave;
+  Save.hooks.newGame = newGame;
+
+  // ---- Frame loop ----
+
   function update(dt) {
     Dialogue.update(dt);
     Battle.update(dt);
+    if (mode === 'title') {
+      // The title screen is a conversation-style menu. If it ever ends without starting a game, show it again.
+      if (!Dialogue.active()) Dialogue.start(titleScreen());
+      return;
+    }
     if (Battle.active() || Dialogue.active()) return; // the world waits during talks and battles
 
     if (player.moving) {
@@ -181,6 +232,22 @@
       player.lastBlock = null; // a new press may announce a blocked path again
     }
     if (dir) tryMove(dir);
+  }
+
+  function drawTitle(pal) {
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.font = 'bold 22px monospace';
+    ctx.fillStyle = pal.ui.accent;
+    ctx.fillText('ORC QUEST', 128, 36);
+    ctx.font = 'bold 10px monospace';
+    ctx.fillStyle = pal.ui.text;
+    ctx.fillText('A short tale of Mistvale', 128, 70);
+    // A small scene: the hero facing an orc raider.
+    Render.drawHero(ctx, 92, 104, pal.hero);
+    Render.drawHero(ctx, 148, 104, pal.enemies.raider);
+    ctx.restore();
   }
 
   function drawField(pal) {
@@ -209,8 +276,14 @@
     ctx.fillStyle = pal.bg;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    if (Battle.active()) Battle.draw(ctx, pal);
-    else drawField(pal);
+    if (mode === 'title') {
+      drawTitle(pal);
+      Dialogue.draw(ctx, pal);
+    } else if (Battle.active()) {
+      Battle.draw(ctx, pal);
+    } else {
+      drawField(pal);
+    }
   }
 
   let last = performance.now();
@@ -255,6 +328,7 @@
   Input.on('3', () => Dialogue.pick(2));
   Input.on('4', () => Dialogue.pick(3));
   Input.on('5', () => Dialogue.pick(4));
+  Input.on('6', () => Dialogue.pick(5));
 
   // Button bindings
   btnContrast.addEventListener('click', toggleContrast);
@@ -266,15 +340,8 @@
 
   document.addEventListener('settingschange', refreshUI);
 
-  // Start
-  State.joinParty('kael');
-  State.addItem('potion', 2);
-  WorldMap.load('mistvale');
-  player.x = player.fromX = WorldMap.info().start.x;
-  player.y = player.fromY = WorldMap.info().start.y;
-  lastTileName = tileName(player.x, player.y);
-  setCanvasLabel();
+  // Start on the title screen.
   refreshUI();
-  Speech.say(`Welcome to ${WorldMap.info().name}. Walk up to someone and press Z to talk. Press E to describe your surroundings.`);
+  Dialogue.start(titleScreen());
   requestAnimationFrame((now) => { last = now; frame(now); });
 })();

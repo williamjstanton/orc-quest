@@ -9,7 +9,7 @@ function gearName(m, slot) {
 
 function* statusScreen() {
   for (const m of State.party()) {
-    yield Dialogue.say(m.name, `Level ${m.level}. HP ${m.hp}/${m.maxHp}. MP ${m.mp}/${m.maxMp}.`);
+    yield Dialogue.say(m.name, `Level ${m.level}. EXP ${m.exp}/${expFor(m.level)}. HP ${m.hp}/${m.maxHp}. MP ${m.mp}/${m.maxMp}.`);
     yield Dialogue.say(m.name, `Attack ${m.atk}, Defense ${m.def}, Magic ${m.mag}, Speed ${m.spd}.`);
     yield Dialogue.say(m.name, `Weapon: ${gearName(m, 'weapon')}. Armor: ${gearName(m, 'armor')}. Accessory: ${gearName(m, 'accessory')}.`);
   }
@@ -74,17 +74,77 @@ function* equipMenu() {
   yield Dialogue.say('', `${m.name} equips the ${ITEMS[item.id].name}.`);
 }
 
+// Save to one of the slots. Asks first before overwriting a slot that already has a game.
+function* saveMenu() {
+  const labels = [];
+  for (let n = 1; n <= Save.SLOT_COUNT; n++) labels.push(Save.label(n));
+  labels.push('Back');
+  const k = yield Dialogue.choose(labels);
+  if (k === Save.SLOT_COUNT) return;
+
+  const n = k + 1;
+  if (Save.read(n)) {
+    const c = yield Dialogue.choose([`Overwrite slot ${n}`, 'Cancel']);
+    if (c !== 0) return;
+  }
+  const ok = Save.save(n);
+  yield Dialogue.say('', ok
+    ? `Game saved to slot ${n}.`
+    : 'Could not save. Your browser may be blocking local storage.');
+}
+
+// Load from one of the slots. Returns true when a game was loaded.
+function* loadMenu() {
+  const labels = [];
+  for (let n = 1; n <= Save.SLOT_COUNT; n++) labels.push(Save.label(n));
+  labels.push('Back');
+  const k = yield Dialogue.choose(labels);
+  if (k === Save.SLOT_COUNT) return false;
+
+  const n = k + 1;
+  if (!Save.read(n)) {
+    yield Dialogue.say('', `Slot ${n} is empty.`);
+    return false;
+  }
+  if (!Save.load(n)) {
+    yield Dialogue.say('', `Slot ${n} could not be loaded. The save may be damaged.`);
+    return false;
+  }
+  yield Dialogue.say('', `Loaded slot ${n}. Welcome back.`);
+  return true;
+}
+
 // The field menu, opened with M.
 function* fieldMenu() {
   while (true) {
-    const i = yield Dialogue.choose(['Status', 'Items', 'Equip', 'Close']);
+    const i = yield Dialogue.choose(['Status', 'Items', 'Equip', 'Save', 'Load', 'Close']);
     if (i === 0) yield* statusScreen();
     else if (i === 1) yield* itemsMenu();
     else if (i === 2) yield* equipMenu();
-    else {
+    else if (i === 3) yield* saveMenu();
+    else if (i === 4) {
+      if (yield* loadMenu()) return; // the world has changed, so close the menu
+    } else {
       yield Dialogue.say('', 'Menu closed.');
       return;
     }
+  }
+}
+
+// The first screen: start a new game or continue a saved one.
+function* titleScreen() {
+  yield Dialogue.say('', 'Orc Quest. Press Z to choose.');
+  while (true) {
+    const i = yield Dialogue.choose(['New Game', 'Continue']);
+    if (i === 0) {
+      Save.hooks.newGame();
+      return;
+    }
+    if (!Save.anySaved()) {
+      yield Dialogue.say('', 'No saved games yet. Start a New Game.');
+      continue;
+    }
+    if (yield* loadMenu()) return;
   }
 }
 

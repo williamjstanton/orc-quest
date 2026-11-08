@@ -1,4 +1,4 @@
-// Game state: party, inventory, gold, equipment and story flags. Saving to disk comes in a later milestone.
+// Game state: party, inventory, gold and story flags. serialize() and deserialize() let save.js store and restore it.
 const State = (() => {
   const flags = {};
   const counts = {};     // item id -> how many the party carries
@@ -79,6 +79,48 @@ const State = (() => {
     },
     addGold(n) {
       gold += n;
+    },
+
+    // A plain copy of everything that makes up the game, ready for JSON.
+    serialize() {
+      return {
+        gold,
+        flags: { ...flags },
+        counts: { ...counts },
+        partyIds: [...partyIds],
+        members: partyIds.map(id => JSON.parse(JSON.stringify(members[id])))
+      };
+    },
+
+    // Replace the current game with saved data. Checks everything first, so a bad save
+    // throws and leaves the current game untouched.
+    deserialize(data) {
+      if (!data || !Array.isArray(data.members) || data.members.length === 0) {
+        throw new Error('Save has no party.');
+      }
+      const newMembers = {};
+      const newIds = [];
+      for (const m of data.members) {
+        if (!PARTY_DEFS[m.id] || typeof m.maxHp !== 'number' || !m.gear) {
+          throw new Error(`Unknown party member in save: ${m.id}`);
+        }
+        newMembers[m.id] = m;
+        newIds.push(m.id);
+      }
+      const newCounts = {};
+      for (const [id, n] of Object.entries(data.counts || {})) {
+        if (ITEMS[id] && n > 0) newCounts[id] = n;
+      }
+
+      Object.keys(members).forEach(k => delete members[k]);
+      Object.assign(members, newMembers);
+      partyIds.length = 0;
+      partyIds.push(...newIds);
+      Object.keys(counts).forEach(k => delete counts[k]);
+      Object.assign(counts, newCounts);
+      Object.keys(flags).forEach(k => delete flags[k]);
+      Object.assign(flags, data.flags || {});
+      gold = Number(data.gold) || 0;
     }
   };
 })();
