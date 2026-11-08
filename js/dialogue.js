@@ -1,4 +1,4 @@
-// Conversation system. A conversation is a generator function that yields
+﻿// Conversation system. A conversation is a generator function that yields
 // Dialogue.say(...) and Dialogue.choose(...) commands. Choices are passed back
 // into the generator, so branching is ordinary code.
 const Dialogue = (() => {
@@ -70,6 +70,7 @@ const Dialogue = (() => {
       return true;
     }
     if (run.choices) {
+      Sound.sfx('confirm');
       step(run.index);
       return true;
     }
@@ -81,12 +82,14 @@ const Dialogue = (() => {
     if (!run || !run.choices) return;
     const n = run.choices.length;
     run.index = (run.index + delta + n) % n;
+    Sound.sfx('blip');
     Speech.say(`${run.index + 1}, ${run.choices[run.index]}`);
   }
 
   function pick(i) {
     if (run && run.choices && i < run.choices.length) {
       run.index = i;
+      Sound.sfx('confirm');
       step(i);
     }
   }

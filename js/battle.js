@@ -1,4 +1,4 @@
-// Turn-based battles. A battle is a generator driven by the Dialogue runner, so messages,
+﻿// Turn-based battles. A battle is a generator driven by the Dialogue runner, so messages,
 // Z-to-continue and menu choices work the same way they do in conversations.
 const Battle = (() => {
   const FONT = 'bold 10px monospace';
@@ -63,6 +63,7 @@ const Battle = (() => {
     if (dst.defending) dmg = Math.max(1, Math.floor(dmg / 2));
     dst.hp = Math.max(0, dst.hp - dmg);
     addFloat(dst, `-${dmg}`);
+    Sound.sfx('hit');
     yield msg(`${src.name} ${verb} ${dst.name} for ${dmg}!`);
     if (dst.hp === 0) yield msg(`${dst.name} falls!`);
   }
@@ -83,6 +84,7 @@ const Battle = (() => {
     const amount = skill.amount + src.mag * 2;
     dst.hp = Math.min(dst.maxHp, dst.hp + amount);
     addFloat(dst, `+${amount}`);
+    Sound.sfx('heal');
     yield msg(`${src.name} heals ${dst.name} for ${amount}!`);
   }
 
@@ -98,6 +100,7 @@ const Battle = (() => {
     yield msg(`${c.name} uses a ${item.name} on ${t.name}.`);
     t.hp = Math.min(t.maxHp, t.hp + item.heal);
     addFloat(t, `+${item.heal}`);
+    Sound.sfx('heal');
     yield msg(`${t.name} recovers ${item.heal} HP.`);
   }
 
@@ -184,6 +187,7 @@ const Battle = (() => {
     const exp = b.enemies.reduce((sum, e) => sum + e.exp, 0);
     const gold = b.enemies.reduce((sum, e) => sum + e.gold, 0);
     State.addGold(gold);
+    Sound.sfx('victory');
     yield msg(`Victory! Gained ${gold} gold and ${exp} EXP.`);
     for (const m of living(b.party)) {
       m.exp += exp;
@@ -194,6 +198,7 @@ const Battle = (() => {
         m.maxMp += GROWTH.maxMp; m.mp += GROWTH.maxMp;
         m.atk += GROWTH.atk; m.def += GROWTH.def;
         m.mag += GROWTH.mag; m.spd += GROWTH.spd;
+        Sound.sfx('levelup');
         yield msg(`${m.name} reached level ${m.level}!`);
         yield msg(`HP +${GROWTH.maxHp}, MP +${GROWTH.maxMp}, Attack +${GROWTH.atk}, Defense +${GROWTH.def}, Magic +${GROWTH.mag}, Speed +${GROWTH.spd}.`);
       }

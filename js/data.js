@@ -33,7 +33,9 @@ const GROWTH = { maxHp: 8, maxMp: 2, atk: 2, def: 1, mag: 2, spd: 1 };
 const ENEMY_DEFS = {
   scout:  { name: 'Orc Scout',   label: 'Scout',  hp: 22, atk: 9,  def: 2, mag: 0, spd: 8, exp: 6,  gold: 4,  look: 'scout',  skills: [] },
   raider: { name: 'Orc Raider',  label: 'Raider', hp: 34, atk: 12, def: 4, mag: 0, spd: 6, exp: 10, gold: 8,  look: 'raider', skills: [] },
-  shaman: { name: 'Orc Shaman',  label: 'Shaman', hp: 26, atk: 4,  def: 2, mag: 9, spd: 7, exp: 12, gold: 10, look: 'shaman', skills: ['hex'] }
+  shaman: { name: 'Orc Shaman',  label: 'Shaman', hp: 26, atk: 4,  def: 2, mag: 9, spd: 7, exp: 12, gold: 10, look: 'shaman', skills: ['hex'] },
+  // The final boss. Only fought in the story battle, never in random encounters.
+  grukk:  { name: 'Orc Chieftain Grukk', label: 'Grukk', hp: 90, atk: 14, def: 6, mag: 0, spd: 7, exp: 60, gold: 80, look: 'grukk', skills: [] }
 };
 
 // Random encounter chance per step, and the groups that can appear.

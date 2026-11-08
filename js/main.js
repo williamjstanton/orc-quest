@@ -1,4 +1,4 @@
-// Game loop, movement, talking to NPCs, battles, the title screen, saving, and the accessibility controls.
+﻿// Game loop, movement, talking to NPCs, battles, the title screen, saving, and the accessibility controls.
 (function () {
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
@@ -7,6 +7,7 @@
   const btnContrast = document.getElementById('btn-contrast');
   const btnVoice = document.getElementById('btn-voice');
   const btnRate = document.getElementById('btn-rate');
+  const btnSound = document.getElementById('btn-sound');
 
   const MOVE_MS = 140; // time to walk one tile
   const DIR_VEC = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
@@ -21,6 +22,14 @@
   };
   let lastTileName = '';
   let mode = 'title';      // 'title' or 'field'
+  let pendingBattle = null; // a story battle to start once the current conversation ends
+
+  // Passed to NPC scripts, so a conversation can lead into a battle.
+  const game = {
+    battleAfterTalk(ids, boss) {
+      pendingBattle = { ids, boss };
+    }
+  };
 
   function palette() {
     return currentPalette();
@@ -94,7 +103,13 @@
       Speech.say('Nothing to talk to here.');
       return;
     }
-    Dialogue.start(npc.script(State));
+    Dialogue.start(npc.script(State, game));
+  }
+
+  // Start a battle with the right music. Boss battles use their own track.
+  function startBattle(ids, onEnd, boss) {
+    Battle.start(ids, onEnd);
+    Sound.music(boss ? 'boss' : 'battle');
   }
 
   // Random encounters: a chance each time the player steps onto a tile that has them.
@@ -102,10 +117,23 @@
     const enc = ENCOUNTERS[WorldMap.tileKeyAt(player.x, player.y)];
     if (!enc || Math.random() >= enc.rate) return;
     const group = enc.groups[Math.floor(Math.random() * enc.groups.length)];
-    Battle.start(group, onBattleEnd);
+    Sound.sfx('encounter');
+    startBattle(group, onBattleEnd, false);
+  }
+
+  // Grukk's battle: winning ends the story. Losing works like any other defeat.
+  function bossEnd(result) {
+    if (result === 'won') {
+      State.flags.grukk_defeated = true;
+      Sound.music('ending');
+      Dialogue.start(endingScript());
+    } else {
+      onBattleEnd(result);
+    }
   }
 
   function onBattleEnd(result) {
+    Sound.music('village');
     if (result === 'lost') {
       // Defeat: the villagers take the party home to heal.
       State.restoreParty();
@@ -168,6 +196,15 @@
       btnVoice.disabled = true;
     }
     btnRate.textContent = `Voice speed: ${rate.toFixed(1)} ([ ])`;
+
+    const snd = Settings.get('sound');
+    btnSound.textContent = `Sound: ${snd ? 'on' : 'off'} (N)`;
+    btnSound.setAttribute('aria-pressed', String(snd));
+  }
+
+  function toggleSound() {
+    const on = Settings.toggle('sound');
+    Speech.say(`Sound ${on ? 'on' : 'off'}.`);
   }
 
   // ---- Save hooks: how save.js describes the game and restores it ----
@@ -189,6 +226,7 @@
     WorldMap.load(data.mapId);
     placePlayer(data.x, data.y);
     mode = 'field';
+    Sound.music('village');
   }
 
   function newGame() {
@@ -197,6 +235,7 @@
     WorldMap.load('mistvale');
     placePlayer(WorldMap.info().start.x, WorldMap.info().start.y);
     mode = 'field';
+    Sound.music('village');
     Speech.say(`Welcome to ${WorldMap.info().name}. Walk up to someone and press Z to talk. Press E to describe your surroundings.`);
   }
 
@@ -212,6 +251,13 @@
     if (mode === 'title') {
       // The title screen is a conversation-style menu. If it ever ends without starting a game, show it again.
       if (!Dialogue.active()) Dialogue.start(titleScreen());
+      return;
+    }
+    // A story battle waits until the conversation that started it has ended.
+    if (pendingBattle && !Dialogue.active() && !Battle.active()) {
+      const p = pendingBattle;
+      pendingBattle = null;
+      startBattle(p.ids, p.boss ? bossEnd : onBattleEnd, p.boss);
       return;
     }
     if (Battle.active() || Dialogue.active()) return; // the world waits during talks and battles
@@ -329,10 +375,12 @@
   Input.on('4', () => Dialogue.pick(3));
   Input.on('5', () => Dialogue.pick(4));
   Input.on('6', () => Dialogue.pick(5));
+  Input.on('n', toggleSound);
 
   // Button bindings
   btnContrast.addEventListener('click', toggleContrast);
   btnVoice.addEventListener('click', toggleVoice);
+  btnSound.addEventListener('click', toggleSound);
   btnRate.addEventListener('click', () => {
     const r = Settings.get('voiceRate');
     changeRate(r >= 1.8 ? -1.2 : 0.2); // cycle through speeds
@@ -342,6 +390,7 @@
 
   // Start on the title screen.
   refreshUI();
+  Sound.music('title');
   Dialogue.start(titleScreen());
   requestAnimationFrame((now) => { last = now; frame(now); });
 })();

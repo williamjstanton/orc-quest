@@ -7,12 +7,14 @@ const PALETTES = {
       elder: { body: '#7b4fb0', head: '#f2c9a0', hair: '#d8d8d8', outline: '#1b1b1b', edge: '#ffffff' },
       smith: { body: '#8a8a8a', head: '#e8b890', hair: '#3a2a1a', outline: '#1b1b1b', edge: '#ffffff' },
       child: { body: '#e0b020', head: '#f2c9a0', hair: '#e8c060', outline: '#1b1b1b', edge: '#ffffff' },
-      brenna: { body: '#c04a8a', head: '#f2c9a0', hair: '#6a3a1a', outline: '#1b1b1b', edge: '#ffffff' }
+      brenna: { body: '#c04a8a', head: '#f2c9a0', hair: '#6a3a1a', outline: '#1b1b1b', edge: '#ffffff' },
+      grukk: { body: '#8a2a2a', head: '#5a9a3a', hair: '#101010', outline: '#1b1b1b', edge: '#ffffff' }
     },
     enemies: {
       scout:  { body: '#6b4a2a', head: '#6a9a3a', hair: '#2a2a2a', outline: '#1b1b1b', edge: '#ffffff' },
       raider: { body: '#5a3a5a', head: '#5a8a3a', hair: '#1a1a1a', outline: '#1b1b1b', edge: '#ffffff' },
-      shaman: { body: '#2a4a4a', head: '#7aaa4a', hair: '#e8e8e8', outline: '#1b1b1b', edge: '#ffffff' }
+      shaman: { body: '#2a4a4a', head: '#7aaa4a', hair: '#e8e8e8', outline: '#1b1b1b', edge: '#ffffff' },
+      grukk:  { body: '#8a2a2a', head: '#5a9a3a', hair: '#101010', outline: '#1b1b1b', edge: '#ffffff' }
     },
     ui: { box: '#0b0d1a', border: '#f4f4f4', text: '#f4f4f4', accent: '#ffd166', bar: '#4caf50', barBack: '#333344', hurt: '#ff6b6b' },
     tiles: {
@@ -31,12 +33,14 @@ const PALETTES = {
       elder: { body: '#00ffff', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
       smith: { body: '#ff8800', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
       child: { body: '#00ff00', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
-      brenna: { body: '#ff3333', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' }
+      brenna: { body: '#ff3333', head: '#ffffff', hair: '#ffff00', outline: '#000000', edge: '#ffffff' },
+      grukk: { body: '#ff0000', head: '#00ff00', hair: '#ffffff', outline: '#000000', edge: '#ffffff' }
     },
     enemies: {
       scout:  { body: '#ff8800', head: '#00ff00', hair: '#000000', outline: '#000000', edge: '#ffffff' },
       raider: { body: '#ff3333', head: '#00ff00', hair: '#000000', outline: '#000000', edge: '#ffffff' },
-      shaman: { body: '#00ffff', head: '#00ff00', hair: '#ffffff', outline: '#000000', edge: '#ffffff' }
+      shaman: { body: '#00ffff', head: '#00ff00', hair: '#ffffff', outline: '#000000', edge: '#ffffff' },
+      grukk:  { body: '#ff0000', head: '#00ff00', hair: '#ffffff', outline: '#000000', edge: '#ffffff' }
     },
     ui: { box: '#000000', border: '#ffffff', text: '#ffffff', accent: '#ffff00', bar: '#ffff00', barBack: '#000000', hurt: '#ff4444' },
     tiles: {

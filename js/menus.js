@@ -1,4 +1,4 @@
-// Field menu and Brenna's shop. Both run on the Dialogue runner, so they share the box,
+﻿// Field menu and Brenna's shop. Both run on the Dialogue runner, so they share the box,
 // speech, captions and keys with conversations.
 const SLOTS = ['weapon', 'armor', 'accessory'];
 const SLOT_LABELS = { weapon: 'Weapon', armor: 'Armor', accessory: 'Accessory' };
@@ -164,6 +164,7 @@ function* buyMenu() {
   if (c !== 0) return;
   State.addGold(-price);
   State.addItem(id);
+  Sound.sfx('coin');
   yield Dialogue.say('Brenna', `Here is your ${ITEMS[id].name}. You have ${State.gold()} gold left.`);
 }
 
@@ -181,6 +182,7 @@ function* sellMenu() {
   const value = Math.floor(ITEMS[items[k].id].price / 2);
   State.removeItem(items[k].id);
   State.addGold(value);
+  Sound.sfx('coin');
   yield Dialogue.say('Brenna', `Sold for ${value} gold. You have ${State.gold()} gold.`);
 }
 
