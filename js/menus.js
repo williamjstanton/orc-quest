@@ -149,15 +149,21 @@ function* titleScreen() {
 }
 
 function* buyMenu() {
-  const options = SHOP_STOCK.map(id => `${ITEMS[id].name} ${ITEMS[id].price}g`);
+  // Show the gold first, then each item with its price and what it does.
+  yield Dialogue.say('Brenna', `You have ${State.gold()} gold. Which would you like?`);
+  const options = SHOP_STOCK.map(id => `${ITEMS[id].name} ${ITEMS[id].price}g: ${ITEMS[id].desc}`);
   options.push('Back');
   const k = yield Dialogue.choose(options);
   if (k === SHOP_STOCK.length) return;
 
+  // Explain the chosen item before asking to buy it.
   const id = SHOP_STOCK[k];
-  const price = ITEMS[id].price;
+  const item = ITEMS[id];
+  const price = item.price;
+  const where = item.slot ? ` It goes in the ${SLOT_LABELS[item.slot]} slot; equip it from the field menu.` : '';
+  yield Dialogue.say(item.name, `${item.desc}${where} Costs ${price} gold. You have ${State.gold()} gold.`);
   if (State.gold() < price) {
-    yield Dialogue.say('Brenna', `That costs ${price} gold, and you have ${State.gold()}.`);
+    yield Dialogue.say('Brenna', `You need ${price - State.gold()} more gold for that.`);
     return;
   }
   const c = yield Dialogue.choose([`Buy for ${price} gold`, 'Cancel']);
